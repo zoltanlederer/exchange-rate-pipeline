@@ -13,8 +13,9 @@ def get_connection():
     password = os.getenv('DB_PASSWORD')
     return psycopg2.connect(host=host, port=port, dbname=dbname, user=user, password=password)
 
+
 def setup_database():
-    """Create exchange_rates table in database."""
+    """Create the exchange_rates table if it doesn't exist."""
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("""
@@ -33,4 +34,6 @@ def setup_database():
     conn.close()
     print("Database ready.")
 
-setup_database()
+
+if __name__ == "__main__":
+    setup_database()
