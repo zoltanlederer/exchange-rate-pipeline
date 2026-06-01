@@ -2,6 +2,7 @@
 
 import requests
 import pandas as pd
+from db import get_connection
 
 class ETLPipeline:
     def __init__(self):
@@ -29,6 +30,20 @@ class ETLPipeline:
             })
         df = pd.DataFrame(rows)
         return df
+    
+    def load(self, df):
+        """Receives the DataFrame and writes each row into the PostgreSQL exchange_rates table."""
+        print("Loading data...")
+        conn = get_connection()
+        cursor = conn.cursor()
+        
+        for index, row in df.iterrows(): # .iterrows() always returns two things on each iteration: the row index (0, 1, 2, 3) and the row data
+            values = (row['date'], row['base_currency'], row['target_currency'], row['rate'])
+            cursor.execute("INSERT INTO exchange_rates (date, base_currency, target_currency, rate) VALUES (%s, %s, %s, %s)", values)
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
 
 if __name__ == '__main__':
     pipeline = ETLPipeline()
@@ -36,3 +51,5 @@ if __name__ == '__main__':
     print('DATA', data)
     df = pipeline.transform(data)
     print('DF', df)
+    load = pipeline.load(df)
+    print('LOAD', load)
