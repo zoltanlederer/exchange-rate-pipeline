@@ -1,6 +1,7 @@
 """ETL pipeline for fetching and storing daily exchange rate data."""
 
 import requests
+import pandas as pd
 
 class ETLPipeline:
     def __init__(self):
@@ -14,8 +15,24 @@ class ETLPipeline:
         response = requests.get(url)
         print("Extracting data...")
         return response.json()
+    
+    def transform(self, data):
+        """The method receives a dictionary and return a clean pandas DataFrame where each row is one currency pair."""
+        print("Transforming data...")
+        rows = []
+        for currency, rate in data['rates'].items():
+            rows.append({
+                'date': data['date'],
+                'base_currency': data['base'],
+                'target_currency': currency,
+                'rate': rate
+            })
+        df = pd.DataFrame(rows)
+        return df
 
 if __name__ == '__main__':
     pipeline = ETLPipeline()
     data = pipeline.extract()
-    print(data)
+    print('DATA', data)
+    df = pipeline.transform(data)
+    print('DF', df)
