@@ -3,7 +3,9 @@
 import requests
 import pandas as pd
 import psycopg2
+from datetime import date
 from db import get_connection
+
 
 class ETLPipeline:
     def __init__(self):
@@ -54,7 +56,7 @@ class ETLPipeline:
         except psycopg2.Error as e:
             print(f'Database error: {e}')
             raise
-        
+
     def run(self):
         """Run the full ETL pipeline — extract, transform, and load."""
         try:
@@ -64,7 +66,23 @@ class ETLPipeline:
         except Exception as e:
             print(f'Pipeline failed: {e}')
             return None
+        
+    def seed_historical_data(self):
+        """Seed the database with 2 years of historical data on the first run"""
+        print("Extracting past 2 years data...")
+        today = date.today()
+        two_years_ago = today.replace(year=today.year - 2)
+        try:
+            url = f'https://api.frankfurter.app/{two_years_ago}..{today}?from={self.base_currency}&to={",".join(self.currencies)}'
+            response = requests.get(url)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            print(f'Connection failed: {e}')
+            raise
+        
 
 if __name__ == '__main__':
     pipeline = ETLPipeline()
-    pipeline.run()
+    # pipeline.run()
+    print(pipeline.seed_historical_data())
