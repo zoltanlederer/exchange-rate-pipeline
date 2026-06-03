@@ -112,16 +112,19 @@ class ETLPipeline:
         try:
             conn = get_connection()
             cursor = conn.cursor()
-            count = cursor.execute('SELECT COUNT (*) FROM exchange_rates')
+            count = cursor.execute('SELECT COUNT (id) FROM exchange_rates')
+            count = cursor.fetchone()
             cursor.close()
             conn.close()
-            print(count)
+            return count[0] == 0
         except psycopg2.Error as e:
             print(f'Database error: {e}')
             raise
+
 
 if __name__ == '__main__':
     pipeline = ETLPipeline()
     # pipeline.run()
     # pipeline.run_historical()
-    pipeline.is_database_empty()
+    # pipeline.is_database_empty()
+    print(pipeline.is_database_empty())
