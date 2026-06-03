@@ -80,9 +80,26 @@ class ETLPipeline:
         except requests.exceptions.RequestException as e:
             print(f'Connection failed: {e}')
             raise
+    
+    def transform_historical(self, data):
+        """The method receives a dictionary and return a clean pandas DataFrame where each row is one currency pair."""
+        print("Transforming data...")
+        rows = []
+        for currency, rate in data['rates'].items():
+            rows.append({
+                'date': data['date'],
+                'base_currency': data['base'],
+                'target_currency': currency,
+                'rate': rate
+            })
+        print(rows)
+        # df = pd.DataFrame(rows)
+        # return df
         
 
 if __name__ == '__main__':
     pipeline = ETLPipeline()
     # pipeline.run()
-    print(pipeline.seed_historical_data())
+    data = pipeline.seed_historical_data()
+    cur = pipeline.transform_historical(data)
+    print(cur)
