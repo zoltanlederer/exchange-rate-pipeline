@@ -85,17 +85,18 @@ class ETLPipeline:
         """The method receives a dictionary and return a clean pandas DataFrame where each row is one currency pair."""
         print("Transforming data...")
         rows = []
-        for currency, rate in data['rates'].items():
-            rows.append({
-                'date': data['date'],
-                'base_currency': data['base'],
-                'target_currency': currency,
-                'rate': rate
-            })
-        print(rows)
-        # df = pd.DataFrame(rows)
-        # return df
-        
+        for date, currencies in data['rates'].items():
+            for cur, rate in currencies.items():
+                rows.append({
+                    'date': date,
+                    'base_currency': data['base'],
+                    'target_currency': cur,
+                    'rate': rate
+                })
+
+        df = pd.DataFrame(rows)
+        return df
+            
 
 if __name__ == '__main__':
     pipeline = ETLPipeline()
