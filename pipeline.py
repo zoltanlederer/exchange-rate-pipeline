@@ -107,8 +107,21 @@ class ETLPipeline:
             print(f'Pipeline failed: {e}')
             return None
         
+    def is_database_empty(self):
+        """Check database if it is empty or not."""
+        try:
+            conn = get_connection()
+            cursor = conn.cursor()
+            count = cursor.execute('SELECT COUNT (*) FROM exchange_rates')
+            cursor.close()
+            conn.close()
+            print(count)
+        except psycopg2.Error as e:
+            print(f'Database error: {e}')
+            raise
 
 if __name__ == '__main__':
     pipeline = ETLPipeline()
-    pipeline.run()
-    pipeline.run_historical()
+    # pipeline.run()
+    # pipeline.run_historical()
+    pipeline.is_database_empty()
