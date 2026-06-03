@@ -60,9 +60,12 @@ class ETLPipeline:
     def run(self):
         """Run the full ETL pipeline — extract, transform, and load."""
         try:
-            data = self.extract()
-            df = self.transform(data)
-            self.load(df)
+            if self.is_database_empty():
+                self.run_historical()
+            else:
+                data = self.extract()
+                df = self.transform(data)
+                self.load(df)
         except Exception as e:
             print(f'Pipeline failed: {e}')
             return None
@@ -124,7 +127,7 @@ class ETLPipeline:
 
 if __name__ == '__main__':
     pipeline = ETLPipeline()
-    # pipeline.run()
+    pipeline.run()
     # pipeline.run_historical()
     # pipeline.is_database_empty()
-    print(pipeline.is_database_empty())
+    # print(pipeline.is_database_empty())
