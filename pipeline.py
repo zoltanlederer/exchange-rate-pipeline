@@ -97,10 +97,18 @@ class ETLPipeline:
         df = pd.DataFrame(rows)
         return df
             
+    def run_historical(self):
+        """Run the full ETL pipeline for historical data — seed_historical_data, transform_historical, and load."""
+        try:
+            data = self.seed_historical_data()
+            df = self.transform_historical(data)
+            self.load(df)
+        except Exception as e:
+            print(f'Pipeline failed: {e}')
+            return None
+        
 
 if __name__ == '__main__':
     pipeline = ETLPipeline()
-    # pipeline.run()
-    data = pipeline.seed_historical_data()
-    cur = pipeline.transform_historical(data)
-    print(cur)
+    pipeline.run()
+    pipeline.run_historical()
