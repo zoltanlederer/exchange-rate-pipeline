@@ -1,6 +1,12 @@
 import psycopg2
 from dotenv import load_dotenv
 import os
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 
 load_dotenv()
 
@@ -32,7 +38,7 @@ def setup_database():
     conn.commit()
     cursor.close()
     conn.close()
-    print("Database ready.")
+    logging.info("Database ready.")
 
 
 if __name__ == "__main__":
