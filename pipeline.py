@@ -3,9 +3,14 @@
 import requests
 import pandas as pd
 import psycopg2
+import logging
 from datetime import date
 from db import get_connection
 
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 
 class ETLPipeline:
     def __init__(self):
@@ -15,19 +20,19 @@ class ETLPipeline:
 
     def extract(self):
         """Get today's exchange rates."""
-        print("Extracting data...")
+        logging.info("Extracting data...")
         try:
             url = f'https://api.frankfurter.app/latest?from={self.base_currency}&to={",".join(self.currencies)}'
             response = requests.get(url)
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:
-            print(f'Connection failed: {e}')
+            logging.error(f'Connection failed: {e}')
             raise
     
     def transform(self, data):
         """The method receives a dictionary and return a clean pandas DataFrame where each row is one currency pair."""
-        print("Transforming data...")
+        logging.info("Transforming data...")
         rows = []
         for currency, rate in data['rates'].items():
             rows.append({
@@ -41,7 +46,7 @@ class ETLPipeline:
     
     def load(self, df):
         """Receives the DataFrame and writes each row into the PostgreSQL exchange_rates table."""
-        print("Loading data...")
+        logging.info("Loading data...")
         try:
             conn = get_connection()
             cursor = conn.cursor()
@@ -54,7 +59,7 @@ class ETLPipeline:
             cursor.close()
             conn.close()
         except psycopg2.Error as e:
-            print(f'Database error: {e}')
+            logging.error(f'Database error: {e}')
             raise
 
     def run(self):
@@ -67,12 +72,12 @@ class ETLPipeline:
                 df = self.transform(data)
                 self.load(df)
         except Exception as e:
-            print(f'Pipeline failed: {e}')
+            logging.error(f'Pipeline failed: {e}')
             return None
         
     def seed_historical_data(self):
         """Seed the database with 2 years of historical data on the first run"""
-        print("Extracting past 2 years data...")
+        logging.info("Extracting past 2 years data...")
         today = date.today()
         two_years_ago = today.replace(year=today.year - 2)
         try:
@@ -81,12 +86,12 @@ class ETLPipeline:
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:
-            print(f'Connection failed: {e}')
+            logging.error(f'Connection failed: {e}')
             raise
     
     def transform_historical(self, data):
         """The method receives a dictionary and return a clean pandas DataFrame where each row is one currency pair."""
-        print("Transforming data...")
+        logging.info("Transforming data...")
         rows = []
         for date, currencies in data['rates'].items():
             for cur, rate in currencies.items():
@@ -107,7 +112,7 @@ class ETLPipeline:
             df = self.transform_historical(data)
             self.load(df)
         except Exception as e:
-            print(f'Pipeline failed: {e}')
+            logging.error(f'Pipeline failed: {e}')
             return None
         
     def is_database_empty(self):
@@ -121,13 +126,10 @@ class ETLPipeline:
             conn.close()
             return count[0] == 0
         except psycopg2.Error as e:
-            print(f'Database error: {e}')
+            logging.error(f'Database error: {e}')
             raise
 
 
 if __name__ == '__main__':
     pipeline = ETLPipeline()
     pipeline.run()
-    # pipeline.run_historical()
-    # pipeline.is_database_empty()
-    # print(pipeline.is_database_empty())
