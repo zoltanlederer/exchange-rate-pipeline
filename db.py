@@ -1,3 +1,5 @@
+"""Database connection and table setup for the exchange rate pipeline."""
+
 import psycopg2
 from dotenv import load_dotenv
 import os
@@ -8,6 +10,7 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
+# Reads .env file and loads the variables into the environment so os.getenv() can find them
 load_dotenv()
 
 def get_connection():
