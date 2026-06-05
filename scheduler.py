@@ -1,4 +1,4 @@
-"""Schedule to run ETLPipeline every day at 17:00 CET"""
+"""Schedule to run ETLPipeline every day at 17:00 CET."""
 
 from pipeline import ETLPipeline
 from apscheduler.schedulers.blocking import BlockingScheduler
