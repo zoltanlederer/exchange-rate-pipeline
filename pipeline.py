@@ -31,7 +31,7 @@ class ETLPipeline:
             raise
     
     def transform(self, data):
-        """The method receives a dictionary and return a clean pandas DataFrame where each row is one currency pair."""
+        """The method receives a dictionary and returns a clean pandas DataFrame where each row is one currency pair."""
         logging.info("Transforming data...")
         rows = []
         for currency, rate in data['rates'].items():
@@ -76,7 +76,7 @@ class ETLPipeline:
             return None
         
     def seed_historical_data(self):
-        """Seed the database with 2 years of historical data on the first run"""
+        """Seed the database with 2 years of historical data on the first run."""
         logging.info("Extracting past 2 years data...")
         today = date.today()
         two_years_ago = today.replace(year=today.year - 2)
@@ -90,7 +90,7 @@ class ETLPipeline:
             raise
     
     def transform_historical(self, data):
-        """The method receives a dictionary and return a clean pandas DataFrame where each row is one currency pair."""
+        """Transform historical API response into a DataFrame — one row per date and currency pair."""
         logging.info("Transforming data...")
         rows = []
         for date, currencies in data['rates'].items():
